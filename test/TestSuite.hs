@@ -12,9 +12,9 @@
  -}
 module Main where
 
-import Data.Graph.Inductive.Arbitrary  ()
+import Data.Graph.Inductive.Arbitrary        ()
 import Data.Graph.Inductive.Graph
-import Data.Graph.Inductive.Properties
+import Data.Graph.Inductive.Graph.Properties
 import Data.Graph.Inductive.Proxy
 
 import Test.Hspec
