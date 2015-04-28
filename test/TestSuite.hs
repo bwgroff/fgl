@@ -81,6 +81,7 @@ graphTests nm p = describe nm $ do
 --   used by a query function are adequately tested with 'graphTests'.
 queryTests :: Spec
 queryTests = describe "Queries" $ do
+  propP "ap"  test_ap
   propP "bcc" test_bcc
   where
     propP str = prop str . ($p)

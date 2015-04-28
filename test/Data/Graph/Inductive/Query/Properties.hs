@@ -24,7 +24,15 @@ import Data.List (sort)
 -- -----------------------------------------------------------------------------
 -- Articulation Points
 
--- TODO
+-- | Deleting the articulation points should increase the number of
+--   components.
+test_ap :: (ArbGraph gr) => Proxy (gr a b) -> Undirected gr a b -> Property
+test_ap _ ug = not (isEmpty g) ==>
+                 null points || noComponents (delNodes points g) > noComponents g
+  where
+    g = toBaseGraph ug
+
+    points = ap g
 
 -- -----------------------------------------------------------------------------
 -- BCC
