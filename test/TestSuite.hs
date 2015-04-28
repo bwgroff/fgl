@@ -16,6 +16,7 @@ import Data.Graph.Inductive.Arbitrary        ()
 import Data.Graph.Inductive.Graph
 import Data.Graph.Inductive.Graph.Properties
 import Data.Graph.Inductive.Proxy
+import Data.Graph.Inductive.Query.Properties
 
 import Test.Hspec
 import Test.Hspec.QuickCheck
@@ -27,6 +28,7 @@ main :: IO ()
 main = hspec $ do
   graphTests "Tree Graphs"         (Proxy :: TreeP)
   graphTests "PatriciaTree Graphs" (Proxy :: PatriciaTreeP)
+  queryTests
   describe "Miscellaneous" $ do
     prop "edge projections" (edge_projections :: LEdge Char -> Bool)
 
@@ -73,3 +75,15 @@ graphTests nm p = describe nm $ do
     propType = prop
 
 -- -----------------------------------------------------------------------------
+
+-- | Run all available tests for query functions.  Only tested with
+--   one graph data structure, as it is assumed that any functions
+--   used by a query function are adequately tested with 'graphTests'.
+queryTests :: Spec
+queryTests = describe "Queries" $ do
+  propP "bcc" test_bcc
+  where
+    propP str = prop str . ($p)
+
+    p :: PatriciaTreeP
+    p = Proxy

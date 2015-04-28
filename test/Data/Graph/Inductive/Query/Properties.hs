@@ -17,7 +17,7 @@ import Data.Graph.Inductive.Graph
 import Data.Graph.Inductive.Proxy
 import Data.Graph.Inductive.Query
 
-import Test.QuickCheck (Arbitrary (..), Gen)
+import Test.QuickCheck
 
 import Data.List (sort)
 
@@ -29,22 +29,20 @@ import Data.List (sort)
 -- -----------------------------------------------------------------------------
 -- BCC
 
-test_bcc :: (DynGraph gr, Eq b) => Proxy (gr a b) -> Bool
-test_bcc p = sort (concatMap edges $ bcc g) == sort (edges g)
+-- | Test that the bi-connected components are indeed composed solely
+--   from the original graph (and comprise the entire original graph).
+test_bcc :: (ArbGraph gr, Ord a, Ord b) => Proxy (gr a b) -> UConnected gr a b -> Property
+test_bcc _ cg = not (isEmpty g) ==> sort (concatMap labEdges bgs) == sort (labEdges g)
+                                    -- Don't test labNodes as a node
+                                    -- may be repeated in multiple
+                                    -- bi-connected components.
   where
-    g = mkUndirectedUGraph [1..5] [(1, 2), (2, 3), (2, 4), (3, 5)] `asProxyGraphTypeOf` p
+    g = connGraph cg
 
-bccEdges g = sort (concat $ map edges $ bcc g) == sort (edges g)
+    bgs = bcc g
+
 
 -- -----------------------------------------------------------------------------
 -- Utility functions
 
-genConnected :: (DynGraph gr, Arbitrary a, Arbitrary b) => Gen (gr a b)
-genConnected = do GNEs ns es <- arbitrary
-                  let g = mkGraph ns es
-                  let [v] = newNodes 1 g
-                  return g
-
--- | Create an undirected, unlabelled graph.
-mkUndirectedUGraph :: (Graph gr) => [Node] -> [Edge] -> gr () ()
-mkUndirectedUGraph v e = mkUGraph v [ (x, y) | (x0, y0) <- e, (x, y) <- [(x0, y0), (y0, x0)] ]
+type UConnected gr a b = Connected (Undirected gr) a b
