@@ -49,6 +49,39 @@ test_bcc _ cg = not (isEmpty g) ==> sort (concatMap labEdges bgs) == sort (labEd
 
     bgs = bcc g
 
+-- -----------------------------------------------------------------------------
+-- BFS
+
+-- TODO
+
+-- -----------------------------------------------------------------------------
+-- DFS
+
+-- TODO: flesh out
+
+-- | The 'components' function should never return an empty list, and
+--   none of its sub-lists should be empty (unless the graph is
+--   empty).  All nodes in the graph should be in precisely one of the
+--   components.
+test_components :: (ArbGraph gr) => Proxy (gr a b) -> UConnected gr a b -> Bool
+test_components _ cg = all (not . null) cs && sort (concat cs) == sort (nodes g)
+  where
+    g = connGraph cg
+
+    cs = components g
+
+-- | The strongly connected components should be a partitioning of the
+--   nodes of a graph.
+test_scc :: (Graph gr) => Proxy (gr a b) -> gr a b -> Bool
+test_scc _ g = sort (concat (scc g)) == sort (nodes g)
+
+-- | Every node in an undirected connected graph should be reachable.
+test_reachable :: (ArbGraph gr) => Proxy (gr a b) -> UConnected gr a b -> Property
+test_reachable _ cg = not (isEmpty g) ==> sort (reachable v g) == sort (nodes g)
+  where
+    g = connGraph cg
+
+    v = node' . fst . matchAny $ g
 
 -- -----------------------------------------------------------------------------
 -- Utility functions
