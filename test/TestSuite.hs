@@ -87,6 +87,10 @@ queryTests = describe "Queries" $ do
     propP "components" test_components
     propP "scc"        test_scc
     propP "reachable"  test_reachable
+  describe "Indep"  . modifyMaxSize (min 30) $ do
+    -- Due to exponential behaviour of indep, limit the maximum size.
+    propP  "indepSize" test_indepSize
+    propP  "indep"     test_indep
   where
     propP str = prop str . ($p)
 

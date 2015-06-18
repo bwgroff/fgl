@@ -19,7 +19,8 @@ import Data.Graph.Inductive.Query
 
 import Test.QuickCheck
 
-import Data.List (sort)
+import           Data.List (sort, unfoldr)
+import qualified Data.Set  as S
 
 -- -----------------------------------------------------------------------------
 -- Articulation Points
@@ -82,6 +83,27 @@ test_reachable _ cg = not (isEmpty g) ==> sort (reachable v g) == sort (nodes g)
     g = connGraph cg
 
     v = node' . fst . matchAny $ g
+
+-- -----------------------------------------------------------------------------
+-- Indep
+
+-- TODO: how to prove that the found independent set is /maximal/?
+
+-- | Make sure the size of independent sets is indeed accurate.
+test_indepSize :: (ArbGraph gr) => Proxy (gr a b) -> gr a b -> Bool
+test_indepSize _ ag = uncurry ((==) . length) (indepSize g)
+  where
+    g = toBaseGraph ag
+
+-- | Is this really an independent set?
+test_indep :: (ArbGraph gr) => Proxy (gr a b) -> gr a b -> Bool
+test_indep _ ag = and . unfoldr checkSet . S.fromList $ indep g
+  where
+    g = toBaseGraph ag
+
+    checkSet = fmap checkVal . S.minView
+
+    checkVal (v,ws) = (S.null (S.fromList (neighbors g v) `S.intersection` ws), ws)
 
 -- -----------------------------------------------------------------------------
 -- Utility functions
